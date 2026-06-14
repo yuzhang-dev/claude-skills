@@ -7,6 +7,7 @@ A personal collection of skills for [Claude Code](https://docs.anthropic.com/en/
 | Skill | What it does |
 |-------|--------------|
 | [verify-note](skills/verify-note) | Verify and clean up markdown notes (paper or study notes) by cross-checking claims, equations, and numbers against sources via a three-agent pipeline (proposer → challenger → judge). Supports a `--fast` token-saving mode. |
+| [tldr](skills/tldr) | Switch responses to terse, information-dense output (keeps code, numbers, and technical terms exact). Explicit-invocation only — run `/tldr`. |
 
 ## Install
 
