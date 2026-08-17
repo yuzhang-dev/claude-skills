@@ -3,6 +3,9 @@
 A personal collection of Claude Code skills. Each skill lives under `skills/<name>/`. Currently:
 
 - **verify-note** — verify and clean up markdown notes. Supports paper notes (academic papers) and study notes (general learning topics).
+- **tldr** — terse, information-dense output mode. Explicit invocation only.
+- **handoff** — write a session handoff document before `/clear`.
+- **pickup** — restore a handoff document in a fresh session and continue.
 
 ## Installation
 
@@ -23,9 +26,12 @@ Override the destination with `CLAUDE_SKILLS_DIR`. After installing, restart Cla
 /verify-note path/to/note.md
 /verify-note path/to/note.zip
 /verify-note --fast path/to/note.md   # token-saving Fast Mode
+
+/handoff        # write a handoff doc to .claude/handoff/, then /clear
+/pickup         # in the fresh session: restore it and continue
 ```
 
-## Workflow
+## verify-note workflow
 
 1. **Generate initial notes** — write them yourself, find them on the web, or generate them with an LLM (ChatGPT, Claude, etc.).
 2. **Verify and clean up** with `/verify-note` — runs a three-agent verification pipeline (proposer → challenger → judge).
