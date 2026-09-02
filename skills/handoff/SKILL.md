@@ -25,6 +25,10 @@ ls -t .claude/handoff/*.md 2>/dev/null | head -3
 
 Not a git repo? Skip the git fields and say so in the document — do not fabricate a HEAD.
 
+Then call `ListAgents`. Anything this session spawned or is waiting on that is
+still `busy` goes in **In flight**, by name and id — git cannot see it, and a
+subagent that outlives the context keeps running with nobody reading its result.
+
 Then read the conversation itself. That is the primary source; git only tells you what landed on disk, not what was decided, rejected, or discovered. Pull out:
 
 - What the user actually asked for, in their words, including scope changes mid-session.
@@ -51,6 +55,9 @@ Keep even when it feels obvious:
 - Why a plausible-looking alternative was rejected.
 - Environment facts that cost time to discover (a flag, a port, a service that must be running, a test that is flaky).
 - The exact command to reproduce whatever you were mid-way through.
+- Anything still running elsewhere — a subagent, a background task, a remote
+  job. Naming it costs one line; omitting it costs the next session an hour of
+  compute nobody collects.
 
 ## 3. Write
 

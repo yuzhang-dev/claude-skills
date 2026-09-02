@@ -18,7 +18,7 @@ ls -t docs/handoff/*.md 2>/dev/null | head -5
 
 Handoffs are chained: frontmatter carries `slug`, `seq`, `previous`, `date`, `head`, `branch`. If the newest one references decisions you cannot follow, read one more link back via `previous:`. Two is almost always enough — do not walk the whole chain.
 
-Expect these sections: Goal · Where we are · What we tried that did not work · Key decisions · Blocked / open questions · Next step · Quick start. A section reading `none` or `unknown — not recoverable from this session` is deliberate, not damage.
+Expect these sections: Goal · Where we are · In flight · What we tried that did not work · Key decisions · Blocked / open questions · Next step · Quick start. A section reading `none` or `unknown — not recoverable from this session` is deliberate, not damage.
 
 ## 2. Check for drift
 
@@ -38,12 +38,37 @@ Three cases:
 
 Verify before trusting: if the handoff says a file is mid-edit, open it and confirm. A handoff written before a crash or a `git checkout` can be wrong.
 
+### Live work is drift too
+
+Git sees the disk, not what is still running. The handoff's **In flight** section
+names subagents, background tasks and remote jobs; check them before anything
+else, because a stale one is burning tokens right now:
+
+```
+ListAgents
+```
+
+- **Still `busy`, started before the handoff** — it has been running unread ever
+  since. Ask the user whether to collect the result (`SendMessage`) or stop it
+  (`TaskStop`). Do not silently leave it running.
+- **Not listed** — it finished, died, or is not addressable from this session.
+  Absence is not delivery: say which you think it is, and never report its
+  result as if you had it.
+- **`In flight` says `none` but the prose mentions a pending result** — the
+  handoff predates this section, or its author forgot. Check anyway.
+
+`ListAgents` covers peer sessions and this session's own subagents. One spawned
+by a context that has since been cleared can still be alive without appearing
+there — when the handoff names a runner the listing does not show, fall back to
+`ps aux | grep -i claude` before concluding it is gone.
+
 ## 3. Orient the user
 
 Report back, briefly:
 
 - **Where we were** — the goal and current state, 2–4 lines.
 - **What changed since** — drift from step 2, or "nothing changed since the handoff".
+- **Still running** — anything from **In flight** that is alive, and what you propose doing with it. Omit the line only when there was nothing.
 - **Known dead ends** — the failed-attempts list, compressed to one line each. State these explicitly; they are the reason to read the handoff at all.
 - **Next step** — the single concrete action the handoff points at, and the command or file to start with.
 - **Open questions** — anything the previous session left for the user to decide. Ask these now, before working.

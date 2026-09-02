@@ -28,6 +28,19 @@ untouched. Point at files with `path:line`.
 - `src/parser/ast.py` — rewritten, NOT yet called by anything
 - integration tests still on the old path, untouched
 
+## In flight
+
+Work handed to something that outlives this context: subagents, background
+tasks, a long build, a remote job. Name each one so the next session can look it
+up, say what its result is worth, and say what to do with it. Write `none` when
+nothing is running.
+
+- `research-project-78 [46482d]` — subagent auditing `src/parser/` for dead
+  imports, spawned 14:20, no result yet. Advisory only; do not block the rewrite
+  on it. Collect via `SendMessage`, or stop it if still busy.
+- background `pytest tests/integration/` — started 14:55, ~8 min, exit code
+  unread
+
 ## What we tried that did not work
 
 The most valuable section. One bullet per attempt: what, why it failed, the
@@ -74,4 +87,6 @@ A self-contained prompt the next session could act on with nothing else read.
 - The title names the work (`Handoff — parser rewrite, integration tests pending`), not the event (`Handoff — session 3`).
 - Every claim about the codebase is a path, ideally with a line number. "The config file" is a defect.
 - Never delete a heading. `none` is an answer; a missing section reads as an oversight.
+- **In flight** names every runner: agent name and id, or the command. An unnamed
+  "a subagent is still running" forces the next session to hunt through `ps`.
 - Dates and hashes come from `date` and `git`, never from memory.
