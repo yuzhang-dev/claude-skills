@@ -6,7 +6,7 @@ A personal collection of skills for [Claude Code](https://docs.anthropic.com/en/
 
 | Skill | What it does |
 |-------|--------------|
-| [verify-note](skills/verify-note) | Verify and clean up markdown notes (paper or study notes) by cross-checking claims, equations, and numbers against sources via a three-agent pipeline (proposer → challenger → judge). Token-efficient by construction (reads sources as text, not page images; roles run as sub-agents that persist findings to disk), with HIGH/MID/LOW risk tiers setting how many agents independently read the source. |
+| [verify](skills/verify) | Run a multi-agent verification over a target — a claim, a result table, code, a document, a note. Three agents (proposer → challenger → judge) by default, five (two opposed tracks + shared judge) on request. Ships the mechanism only: *what* gets verified and against what evidence is declared by a protocol document inside the project being worked on. |
 | [tldr](skills/tldr) | Switch responses to terse, information-dense output (keeps code, numbers, and technical terms exact). Explicit-invocation only — run `/tldr`. |
 | [handoff](skills/handoff) | Write a session handoff document before `/clear` — goal, current state, failed attempts, decisions, next step — so a fresh session can pick the work up. |
 | [pickup](skills/pickup) | The counterpart to `handoff`: restore that document in a new session, check whether the repo moved since it was written, and continue. |
@@ -18,7 +18,7 @@ git clone https://github.com/<you>/claude-skills.git
 cd claude-skills
 
 ./install.sh                       # user-level: ~/.claude/skills (all skills)
-./install.sh verify-note           # user-level, a single skill
+./install.sh verify                # user-level, a single skill
 ./install.sh --project             # project-level: ./.claude/skills (current dir)
 ./install.sh --project /path/proj  # project-level at a given project
 ```
