@@ -40,7 +40,9 @@ Each project declares its own protocols in `VERIFY-PROTOCOL.md`, under whichever
 
 With no protocol document the skill still runs, but **reports findings without editing anything**.
 
-The note-verification protocols (paper / study, with templates and house prose rules) live in the yuzhang-io repo, not here.
+This repo ships **no protocols**. A protocol belongs to the repo it governs and is written by reading what that repo already does, not by importing a taxonomy from here. Keep it that way: no project names, paths, or domain specifics in this repo.
+
+The shape that works, for a protocol document anywhere: one `## <name>` per protocol, and under each one the target kind, the sources of truth **in the order to try them**, the role count and execution mode, where output goes, and the traps that project has actually been bitten by. The traps are the most valuable part and the part a general skill can never supply.
 
 ## Recommended permissions
 

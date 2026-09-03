@@ -16,11 +16,12 @@ The skill ships the **mechanism** and nothing else. What gets verified, against 
 Bare words before the target configure the run and may appear in any order: `3` or `5` sets the agent count (default `3`); `a` / `s` / `r` (or `agent` / `sequential` / `role`) sets the execution mode (default `a`); any other bare word names a protocol; everything else is the target. The reserved words cannot be protocol names.
 
 ```
-/verify docs/paper_full.md §3.7
-/verify 5 ib_3dgs/encoder.py
-/verify 3 s note content/notes/slam/foo.en.md
-/verify 3 r results results/aggregated/round1a_scene0494.md
-/verify judgment "Opacity Crush should replace GA"
+/verify docs/spec.md §3.7
+/verify 5 src/encoder.py
+/verify 3 tables results/summary.md
+/verify 3 s claims docs/design.md
+/verify 3 r tables results/summary.md
+/verify claims "the new sampler should replace the old one"
 ```
 
 ## The protocol lives in the project
@@ -36,6 +37,22 @@ Each `## <name>` inside is one protocol; a `Default: <name>` line picks the one 
 A protocol sets: the target kind, the sources of truth and the order to try them, how many roles independently read the source, which model each role uses, the verdict vocabulary, where output is written, the project's known traps, and batching and stop rules. It cannot weaken the discipline in [`method.md`](method.md).
 
 **With no protocol document**, the skill still runs — it verifies against whatever source of truth it can identify and **reports findings without editing anything**. Applying edits requires a protocol that says to.
+
+### Writing one
+
+```markdown
+Default: <name>
+
+## <name>
+
+**Target:** what this protocol verifies.
+**Roles:** 3 or 5, and the execution mode, with the reason.
+**Sources of truth, in order:** the artifacts a role must open, most authoritative first.
+**Traps:** the mistakes this project has actually made, and what to check because of them.
+**Output:** where the verdict goes, and where per-role findings go.
+```
+
+The traps section is the most valuable part and the part a general skill can never supply — it is written from what the project got wrong before, not from what a verifier should do in principle. Two rules of thumb: name the *frozen* copy of a config rather than the editable one, and where a target is a judgement call with nothing to re-open, forbid mode `r` explicitly.
 
 ## Three agents, and why the challenger matters
 

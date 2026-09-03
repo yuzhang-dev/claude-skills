@@ -12,18 +12,18 @@ Bare words before the target select how the run is configured. Order does not ma
 - **`3` or `5`** — how many agents. Default `3` when neither appears.
 - **`agent`/`a`, `sequential`/`s`, `role`/`r`** — execution mode (see `method.md` §3).
   Default `a`; the protocol may set a different default.
-- **any other bare word** — the name of a protocol (`paper`, `results`, `value`, …).
+- **any other bare word** — the name of a protocol, whatever the project called it.
   Matched against the protocol document found in step 2. The words above are reserved and
   cannot be protocol names.
 - **everything else** — the target: a path, a section reference, or a quoted proposition.
 
 ```
-/verify docs/paper_full.md §3.7
-/verify 5 ib_3dgs/encoder.py
-/verify 3 results results/aggregated/round1a_scene0494.md
-/verify judgment "Opacity Crush should replace GA"
-/verify 3 s note content/notes/slam/foo.en.md
-/verify 3 r results results/aggregated/round1a_scene0494.md
+/verify docs/spec.md §3.7
+/verify 5 src/encoder.py
+/verify 3 tables results/summary.md
+/verify 3 s claims docs/design.md
+/verify 3 r tables results/summary.md
+/verify claims "the new sampler should replace the old one"
 ```
 
 If a bare word matches no protocol, do not guess — say which names are available and ask.
