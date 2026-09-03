@@ -2,7 +2,7 @@
 
 A personal collection of Claude Code skills. Each skill lives under `skills/<name>/`. Currently:
 
-- **verify** — multi-agent verification (3 agents, or 5 in two opposed tracks) over any target. Ships the mechanism; each project declares its own protocol in `docs/VERIFY-PROTOCOL.md`.
+- **verify** — multi-agent verification (3 agents, or 5 in two opposed tracks) over any target. Ships the mechanism; each project declares its own protocol in a `VERIFY-PROTOCOL.md`.
 - **tldr** — terse, information-dense output mode. Explicit invocation only.
 - **handoff** — write a session handoff document before `/clear`.
 - **pickup** — restore a handoff document in a fresh session and continue.
@@ -36,7 +36,7 @@ Override the destination with `CLAUDE_SKILLS_DIR`. After installing, restart Cla
 
 The skill ships two files — `SKILL.md` (parse args, find the protocol, route) and `method.md` (agent wiring, evidence reading, findings discipline). It does **not** ship taxonomies of what to verify.
 
-Each project declares its own protocols in `docs/VERIFY-PROTOCOL.md` (fallbacks: `.claude/verify-protocol.md`, or a `## Verify` section in the project's CLAUDE.md). One `## <name>` per protocol, plus a `Default: <name>` line. A protocol sets the target kind, sources of truth, agent count and execution mode, how many roles read the source independently, per-role models, verdict vocabulary, output location, project traps, and stop rules. It cannot weaken `method.md`.
+Each project declares its own protocols in `VERIFY-PROTOCOL.md`, under whichever of `docs/`, `contracts/` or the repo root it keeps process documents in (fallbacks: `.claude/verify-protocol.md`, or a `## Verify` section in the project's CLAUDE.md). One `## <name>` per protocol, plus a `Default: <name>` line. A protocol sets the target kind, sources of truth, agent count and execution mode, how many roles read the source independently, per-role models, verdict vocabulary, output location, project traps, and stop rules. It cannot weaken `method.md`.
 
 With no protocol document the skill still runs, but **reports findings without editing anything**.
 

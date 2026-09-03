@@ -27,7 +27,7 @@ Bare words before the target configure the run and may appear in any order: `3` 
 
 The skill looks for, in order:
 
-1. `docs/VERIFY-PROTOCOL.md`
+1. `VERIFY-PROTOCOL.md` in `docs/`, `contracts/`, or the repo root — wherever the project keeps its process documents
 2. `.claude/verify-protocol.md`
 3. a `## Verify` section in the project's `CLAUDE.md`
 

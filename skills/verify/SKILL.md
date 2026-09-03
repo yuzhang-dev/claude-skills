@@ -33,9 +33,13 @@ If a bare word matches no protocol, do not guess — say which names are availab
 The protocol says **what this project verifies, against what evidence, and where the
 output goes**. It is the project's, not this skill's. Look in order, stop at the first hit:
 
-1. `docs/VERIFY-PROTOCOL.md`
+1. `VERIFY-PROTOCOL.md`, in whichever of these the project actually uses for its process
+   documents: `docs/`, `contracts/`, or the repo root.
 2. `.claude/verify-protocol.md`
 3. a `## Verify` section in the project's `CLAUDE.md`
+
+One `ls` over those three directories settles it; do not guess from the repo's name or
+language which one it will be.
 
 Inside it, each `## <name>` is one protocol. A `Default: <name>` line names the one to use
 when the invocation gives no name. If the document exists but has no matching section and
