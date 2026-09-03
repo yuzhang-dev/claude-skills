@@ -20,7 +20,7 @@ The core of this skill is a sequential three-agent verification pipeline defined
 
 1. **Proposer** — scrutinizes the note for errors. For each potential error, states exactly what is wrong, quotes the original text, provides evidence from a verified source (paper PDF, official docs), and classifies confidence as high/medium/low.
 
-2. **Challenger** — a skeptical adversary who receives the proposer's error list and tries to refute each one. Independently re-checks the evidence, provides counter-evidence where applicable, and marks each error as agree/dispute/needs more evidence.
+2. **Challenger** — a skeptical adversary who receives the proposer's error list. It re-verifies the **majority** of items (not only the contested ones) and adversarially re-reads the whole note for what the proposer **missed**. Marks each as agree/dispute/needs more evidence. Its most valuable output is killing proposer false positives: without a second independent read, wrong "fixes" get applied.
 
 3. **Judge** — a neutral arbiter who reviews both sides. Re-verifies the evidence independently and renders a final verdict: confirmed error (apply correction), false alarm (keep original), or flag for user (genuinely ambiguous).
 
@@ -33,7 +33,7 @@ Pass the note to the skill in Claude Code. You can provide either a **markdown f
 ```
 /verify-note path/to/note.md
 /verify-note path/to/note.zip
-/verify-note --fast path/to/note.md   # token-saving Fast Mode
+/verify-note --fast path/to/note.md   # LOW risk tier (gated — see below)
 ```
 
 The skill will:
@@ -47,17 +47,35 @@ The skill will:
 
 Output goes back to the same directory as the input.
 
-### Fast Mode (`--fast`)
+### Token efficiency is not a mode
 
-A token-saving variant of the pipeline: sources are read once and shared as extracted evidence across all three roles (no re-reading the full PDF per agent), each role runs as a single batched pass, and only uncertain findings are escalated through the full challenger + judge exchange. Cheaper, but does less independent re-verification — use the default pipeline when correctness is critical.
+[`evidence.md`](evidence.md) applies on **every** run, at every risk tier. Quality is never traded for tokens; the savings come from *how* evidence is read:
+
+- **Read text, not page images.** `Read`-ing a PDF renders every page as an image, roughly 10x the tokens of the same text. Fallback chain: ar5iv -> native arXiv HTML -> `pdftotext -layout` -> `pdftoppm` single-page render, for figures only.
+- **Stage the source once in the main context.** `cp` + `pdftotext` are bash (near-free); sub-agents get a local `.txt` path, so all three read identical text and nobody re-fetches.
+- **Run the roles as sub-agents that persist findings to disk.** Source reads stay in their context; the main loop sees only structured verdicts, and a crashed wave resumes from the JSON.
+- **Per-role models.** Proposer `sonnet`, challenger and judge `opus` at the default tier.
+
+### Risk tiers and `--fast`
+
+How many agents *independently read the source* is set by risk, not by budget:
+
+| Tier | Reads | Models |
+|---|---|---|
+| **HIGH** | proposer + challenger each read the full source twice; judge re-checks every contested item | all `opus` |
+| **MID** (default) | all three read the source | proposer `sonnet`, challenger/judge `opus` |
+| **LOW** (`--fast`) | proposer only, one read; escalates on any medium/high suspicion | proposer `sonnet` |
+
+`--fast` is **gated**: refused on paper notes, and reserved for conceptual / index / reading-list notes with few hard claims. Study notes are *not* the safe tier — in a 63-note campaign they produced a higher error density than paper notes, so they get the full pipeline.
 
 ## Skill structure
 
 ```
 verify-note/
 ├── SKILL.md                  # Entry point (Claude Code reads this)
-├── contract.md               # Main processing contract & three-agent pipeline
-├── rules.md                  # Formatting, content, and safety rules
+├── contract.md               # Main processing contract, three-agent pipeline, risk tiers
+├── evidence.md               # How sources are obtained and read (token-efficient procedure)
+├── rules.md                  # Formatting, content, safety, and high-risk error patterns
 ├── paper-note-contract.md    # Paper note specific workflow
 ├── study-note-contract.md    # Study note specific workflow
 └── templates/

@@ -6,7 +6,7 @@ A personal collection of skills for [Claude Code](https://docs.anthropic.com/en/
 
 | Skill | What it does |
 |-------|--------------|
-| [verify-note](skills/verify-note) | Verify and clean up markdown notes (paper or study notes) by cross-checking claims, equations, and numbers against sources via a three-agent pipeline (proposer → challenger → judge). Supports a `--fast` token-saving mode. |
+| [verify-note](skills/verify-note) | Verify and clean up markdown notes (paper or study notes) by cross-checking claims, equations, and numbers against sources via a three-agent pipeline (proposer → challenger → judge). Token-efficient by construction (reads sources as text, not page images; roles run as sub-agents that persist findings to disk), with HIGH/MID/LOW risk tiers setting how many agents independently read the source. |
 | [tldr](skills/tldr) | Switch responses to terse, information-dense output (keeps code, numbers, and technical terms exact). Explicit-invocation only — run `/tldr`. |
 | [handoff](skills/handoff) | Write a session handoff document before `/clear` — goal, current state, failed attempts, decisions, next step — so a fresh session can pick the work up. |
 | [pickup](skills/pickup) | The counterpart to `handoff`: restore that document in a new session, check whether the repo moved since it was written, and continue. |

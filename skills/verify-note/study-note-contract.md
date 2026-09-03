@@ -4,6 +4,15 @@ See `${CLAUDE_SKILL_DIR}/templates/study-note.md` for the full template.
 
 For general learning notes (e.g., C++ templates, system design, algorithms). These notes don't follow a fixed section structure like paper notes.
 
+**Study notes get the FULL three-agent pipeline. They are not the cheap tier.** Field data:
+a five-note study wave produced ~10 real mid-severity errors, a higher density than the
+paper notes in the same campaign. A study note synthesizes many sources and adds the
+author's own intuition, so it accumulates intuition slips, plausible-but-wrong
+elaborations, cross-source misattributions, and self-contradictions between its own
+sections — precisely the class the challenger catches and a single proposer pass does not.
+See `rules.md`, High-Risk Error Patterns. `--fast` / LOW tier is reserved for conceptual,
+index, or reading-list notes with few hard claims.
+
 ## Required Sections
 
 - **Declaration block** (`---` block with Description, Notion Note ID, Created, Updated, License)
@@ -24,11 +33,16 @@ Understand the topic and scope.
 
 Before verification, gather authoritative sources for the topic:
 - Use `WebSearch` or `WebFetch` to find official documentation, authoritative references, and tutorials.
+- **Targeted fetches for the specific hard claims** (formulas, version numbers, named
+  algorithms, complexity bounds, library defaults), not a blanket re-derivation of the topic.
+- Read text sources, not rendered pages, wherever both exist. See `${CLAUDE_SKILL_DIR}/evidence.md`.
+- **Check the note against itself.** Conventions stated in one section and contradicted in
+  another are a leading study-note error, and no external source will surface them.
 - Verify code examples compile/run correctly if possible.
 
 ### Step 3: Run the Three-Agent Verification Pipeline
 
-Follow the **Three-Agent Verification Pipeline** in `${CLAUDE_SKILL_DIR}/contract.md` (or its **Fast Mode** variant if `--fast` was requested). The agents should use official documentation and authoritative references as their primary evidence sources. Specifically, the **Proposer** agent should check:
+Follow the **Three-Agent Verification Pipeline** in `${CLAUDE_SKILL_DIR}/contract.md` (at the risk tier chosen per its *Read depth* table; `--fast` requests the LOW tier and is refused where that table forbids it). The agents should use official documentation and authoritative references as their primary evidence sources. Specifically, the **Proposer** agent should check:
 
 - Claims, code snippets, and explanations against official docs.
 - Code correctness (syntax, API usage, deprecated features).

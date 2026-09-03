@@ -25,7 +25,7 @@ Override the destination with `CLAUDE_SKILLS_DIR`. After installing, restart Cla
 ```
 /verify-note path/to/note.md
 /verify-note path/to/note.zip
-/verify-note --fast path/to/note.md   # token-saving Fast Mode
+/verify-note --fast path/to/note.md   # LOW risk tier (gated: never on paper notes)
 
 /handoff        # write a handoff doc to .claude/handoff/, then /clear
 /pickup         # in the fresh session: restore it and continue
@@ -34,7 +34,7 @@ Override the destination with `CLAUDE_SKILLS_DIR`. After installing, restart Cla
 ## verify-note workflow
 
 1. **Generate initial notes** — write them yourself, find them on the web, or generate them with an LLM (ChatGPT, Claude, etc.).
-2. **Verify and clean up** with `/verify-note` — runs a three-agent verification pipeline (proposer → challenger → judge).
+2. **Verify and clean up** with `/verify-note` — runs a three-agent verification pipeline (proposer → challenger → judge) at a HIGH/MID/LOW risk tier. Token efficiency comes from `evidence.md` (read text not page images, stage once, sub-agents persist findings), never from skipping a read.
 3. Output goes back to the same directory as the input.
 
 ## Recommended permissions

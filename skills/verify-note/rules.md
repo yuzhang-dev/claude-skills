@@ -23,6 +23,53 @@
 - **Content deletion.** Delete content that is verified wrong or obviously unnecessary. When in doubt, ask.
 - **Fix typos silently.** Do NOT list typos in verification logs.
 - **Language:** Notes may be in English or Chinese. Preserve the original language unless asked to translate.
+- **Templates are a default, not a mandate.** `templates/` holds a generic layout for notes
+  that have no structure of their own. If the project defines its own house format (its
+  CLAUDE.md, a workflow doc, or the surrounding notes), **preserve and lightly normalize to
+  that** — fill in missing sections, align metadata field order — and never rewrite prose
+  into this skill's section scheme.
+
+## High-Risk Error Patterns (field-tested)
+
+These come from a 63-note verification campaign. They are where real errors actually
+cluster — check them explicitly rather than trusting a content-focused read.
+
+- **The author byline is the top fabrication hotspot.** Notes drafted from memory invent
+  authors. A content-focused read skips the byline entirely, so it survives. **Explicitly
+  diff the note's `**Paper**` / author line against the real author list, every note,
+  every pass.** One campaign note had a fabricated second author; a *re-verify* of an
+  already-corrected note surfaced a second fabrication the first pass had missed
+  (invented authors plus a real one dropped). When any fabrication is found, re-run the
+  full pipeline on the corrected note.
+
+- **Study notes are NOT the low-risk kind.** The intuition that concept notes are safer
+  than paper notes is wrong: a five-note study wave produced ~10 real mid-severity errors,
+  a *higher* density than the paper notes. Cause: a paper note is anchored to ONE source
+  and stays faithful, while a study note synthesizes many sources, adds the author's own
+  intuition, and is often expanded from a stub, so it accumulates:
+  1. **intuition slips** ("pure-rotation rays are parallel" — actually zero-baseline);
+  2. **plausible-but-wrong elaborations** ("SVD of M is O(n³)" — M is 2n×12, so O(n));
+  3. **cross-source misattributions** (a method pinned on the wrong paper by the same authors);
+  4. **self-contradictions** (one convention in the definition, the transposed one in the
+     error metric; "library X defaults to Dog-Leg" in one section, "defaults to LM" in another).
+  Self-contradiction and omission are exactly what the challenger catches and the proposer
+  passes. Run the full pipeline on study notes.
+
+- **Separate paper-claims from code, blog, and opinion content.** Notes on well-known
+  systems often mix paper facts with code walkthroughs and third-party commentary. Verify
+  *paper-attributable* claims (formulas, mechanism, contributions, venue/year, reported
+  numbers) against the paper. For code-walkthrough content and clearly-attributed opinion,
+  sanity-check but do **not** force-fit to the paper — label it "code-sourced" or
+  "opinion, already attributed" instead of inventing a correction.
+
+- **"Wrong" is not the same as "true but not from this paper."** A correct cross-domain
+  fact stated inside a paper note is not a fabrication merely because that paper does not
+  say it. The judge decides keep-versus-soften; it is never auto-deleted.
+
+- **Tables are a misreading hotspot.** A per-sequence cell read as if it were the average,
+  or a best-case oracle row quoted as the end-to-end result, both produce confident
+  findings that are simply false. Re-read the table at a text rung (`pdftotext -layout`)
+  before a table-derived correction is applied.
 
 ## Prose Style
 

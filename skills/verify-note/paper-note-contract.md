@@ -31,18 +31,31 @@ Try the following in order:
 2. **arXiv fetch**: If the note contains an arXiv ID, fetch the PDF from `https://arxiv.org/pdf/XXXX.XXXXX` (arxiv.org is a pre-approved domain).
 3. **Ask the user**: If neither is available, ask the user to provide the paper (PDF path or URL).
 
-Once obtained:
-- Read the PDF with the `Read` tool (up to 20 pages per request, read in chunks).
-- Use sub-agents (Agent tool) to parallelize verification of different sections when the paper is large.
+Once obtained, read it per `${CLAUDE_SKILL_DIR}/evidence.md`:
+
+- **Prefer text over page images.** Descend the fallback chain: ar5iv -> native arXiv HTML
+  -> `pdftotext -layout` -> `pdftoppm` single-page render for figures only. `Read`-ing a
+  whole PDF renders every page as an image and costs roughly 10x the tokens of the same
+  text; it is the last resort, not the first move.
+- **Stage the text once in the main context** (`pdftotext` is bash, near-free) and hand
+  sub-agents the local `.txt` path, so all agents read identical text.
+- Run the pipeline roles as sub-agents, each persisting its findings to disk before
+  returning.
 
 ### Step 3: Run the Three-Agent Verification Pipeline
 
-Follow the **Three-Agent Verification Pipeline** in `${CLAUDE_SKILL_DIR}/contract.md` (or its **Fast Mode** variant if `--fast` was requested). The agents should use the fetched paper PDF as their primary evidence source. Specifically, the **Proposer** agent should check:
+Follow the **Three-Agent Verification Pipeline** in `${CLAUDE_SKILL_DIR}/contract.md` (at the risk tier chosen per its *Read depth* table; `--fast` requests the LOW tier and is refused where that table forbids it). The agents should use the fetched paper PDF as their primary evidence source. Specifically, the **Proposer** agent should check:
 
-- **Paper metadata**: title, authors, arXiv ID, code link.
+- **Paper metadata**: title, authors, arXiv ID, code link. **Diff the author byline
+  against the real author list, character by character** — this is the single highest-yield
+  check in the whole pipeline (see `rules.md`, High-Risk Error Patterns). Content-focused
+  reads skip the byline, so fabricated authors survive pass after pass.
 - **Summary & contributions**: against the paper's actual claims.
 - **Method & equations**: every equation, reconstruct broken LaTeX.
-- **Experimental results**: numbers against paper tables/figures.
+- **Experimental results**: numbers against paper tables/figures. Re-read any table a
+  finding depends on at a text rung (`pdftotext -layout`) — misreading a per-sequence cell
+  as the average, or quoting a best-case oracle row as the end-to-end result, are the two
+  classic false findings.
 - **Missing content**: key concepts/steps the note omits.
 
 ### Step 4: Apply confirmed corrections, improve, and add figures
