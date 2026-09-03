@@ -10,10 +10,11 @@ You are running a multi-agent verification. The user input is: `$ARGUMENTS`
 Bare words before the target select how the run is configured. Order does not matter.
 
 - **`3` or `5`** — how many agents. Default `3` when neither appears.
-- **`isolated` / `nested` / `solo`** — execution mode (see `method.md` §3). Default
-  `isolated`; the protocol may set a different default.
+- **`agent`/`a`, `sequential`/`s`, `role`/`r`** — execution mode (see `method.md` §3).
+  Default `a`; the protocol may set a different default.
 - **any other bare word** — the name of a protocol (`paper`, `results`, `value`, …).
-  Matched against the protocol document found in step 2.
+  Matched against the protocol document found in step 2. The words above are reserved and
+  cannot be protocol names.
 - **everything else** — the target: a path, a section reference, or a quoted proposition.
 
 ```
@@ -21,7 +22,8 @@ Bare words before the target select how the run is configured. Order does not ma
 /verify 5 ib_3dgs/encoder.py
 /verify 3 results results/aggregated/round1a_scene0494.md
 /verify judgment "Opacity Crush should replace GA"
-/verify 3 solo results results/aggregated/round1a_scene0494.md
+/verify 3 s note content/notes/slam/foo.en.md
+/verify 3 r results results/aggregated/round1a_scene0494.md
 ```
 
 If a bare word matches no protocol, do not guess — say which names are available and ask.

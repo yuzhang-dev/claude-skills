@@ -7,17 +7,19 @@ The skill ships the **mechanism** and nothing else. What gets verified, against 
 ## Usage
 
 ```
-/verify <target>                      # 3 agents, project default protocol
-/verify 5 <target>                    # 5 agents: two opposed tracks + shared judge
+/verify <target>                      # 3 roles, mode a, project default protocol
+/verify 5 <target>                    # 5 roles: two opposed tracks + shared judge
 /verify 3 <protocol> <target>         # a named protocol from the project
+/verify 3 s <protocol> <target>       # sequential mode: one fresh agent per stage
 ```
 
-Bare words before the target configure the run and may appear in any order: `3` or `5` sets the agent count (default `3`), any other bare word names a protocol, everything else is the target.
+Bare words before the target configure the run and may appear in any order: `3` or `5` sets the agent count (default `3`); `a` / `s` / `r` (or `agent` / `sequential` / `role`) sets the execution mode (default `a`); any other bare word names a protocol; everything else is the target. The reserved words cannot be protocol names.
 
 ```
 /verify docs/paper_full.md §3.7
 /verify 5 ib_3dgs/encoder.py
-/verify 3 results results/aggregated/round1a_scene0494.md
+/verify 3 s note content/notes/slam/foo.en.md
+/verify 3 r results results/aggregated/round1a_scene0494.md
 /verify judgment "Opacity Crush should replace GA"
 ```
 
@@ -41,17 +43,19 @@ A protocol sets: the target kind, the sources of truth and the order to try them
 2. **Challenger** — re-verifies the **majority** of the proposer's items, not just the contested ones, *and* adversarially re-reads the whole target for what the proposer missed. Killing the proposer's false positives matters as much as confirming real errors: without a second independent read, a misread table cell becomes an applied "fix".
 3. **Judge** — re-checks both sides against the source, confirms the cited evidence actually exists, and rules confirmed / false alarm / flag-for-user. It emits verbatim edits but never applies them.
 
+The order never changes: proposer alone, then challenger on the proposer's finished output, then judge on both. A mode changes only how isolated the stages are, never their order — the only thing that ever overlaps is the two independent tracks of a 5-agent run.
+
 How isolated the roles are from each other is the **execution mode**:
 
-| Mode | How it runs | Isolation | Cost |
-|---|---|---|---|
-| `isolated` (default) | one sub-agent per role, in sequence; each gets the target plus the previous stage's findings file, never the previous agent's reasoning | full | N spawns, main session orchestrates |
-| `nested` | the main session spawns one agent that runs the whole pipeline, spawning the role agents itself; main context sees only the verdict | full between roles | needs sub-agents to be able to spawn sub-agents — test before relying on it |
-| `solo` | one sub-agent plays every role in sequence in one context | none | cheapest |
+| Mode | Contexts | Carried across a stage | Parallel | Isolation |
+|---|---|---|---|---|
+| `agent` / `a` (default) | one sub-agent per role | the previous stage's findings | the two tracks of a `5` run only | full |
+| `sequential` / `s` | one agent alive at a time, spawned fresh per stage | the findings **file path**, nothing else | nothing, ever | full, and enforced |
+| `role` / `r` | one sub-agent, one context, roles rotate | everything | n/a | none |
 
-A sub-agent cannot clear its own context, so "one agent that resets between roles" is not available; `isolated` is its working equivalent — fresh agent per stage, only the findings file carried across.
+A sub-agent cannot clear its own context — there is no such tool — so `s` is the working form of "reset between roles": a fresh spawn per stage, seeded with the target and a file path and nothing else, so no stage can lean on a predecessor's paraphrase. Lowest peak context of the isolated forms, slowest, since nothing overlaps.
 
-`solo` produces the *appearance* of adversarial review: the roles share one context, one set of blind spots, and the challenger reads the proposer's reasoning rather than only its conclusions. It is allowed where an external ground truth (a number, a table cell, a test result) is what every role must return to anyway. **Never for a judgement target** — with nothing external to re-read, isolation is the only thing generating the opposition.
+`r` produces the *appearance* of adversarial review: the roles share one context, one set of blind spots, and the challenger reads the proposer's reasoning rather than only its conclusions. It is allowed where an external ground truth (a number, a table cell, a test result) is what every role must return to anyway. **Never for a judgement target** — with nothing external to re-read, isolation is the only thing generating the opposition.
 
 ## Five agents
 
@@ -65,10 +69,16 @@ It applies to every run. The savings come from *how* evidence is read, never fro
 
 - **Read text, not page images.** `Read`-ing a PDF renders every page as an image, roughly 10x the tokens of the same text. Fallback chain: ar5iv -> native arXiv HTML -> `pdftotext -layout` -> `pdftoppm` single-page render for figures only.
 - **Stage the source once in the main context.** `cp` + `pdftotext` are bash and near-free; sub-agents get a local path, so all roles read identical text and nobody re-fetches.
-- **Every role is a sub-agent that persists its findings to disk.** Source reads stay in its context, the main loop sees only verdicts, and a crashed batch resumes from the JSON.
+- **Every role is a sub-agent that persists as it goes.** Source reads stay in its context and the main loop sees only verdicts — and an agent that dies mid-pass loses nothing, because it has been appending since its first record.
 - **Per-role models.** A cheaper model for the proposer, the strongest for challenger and judge, is a common split — but the protocol decides.
 
 How many roles independently read the source is the one knob that is never turned down to save tokens.
+
+## Surviving a dead sub-agent
+
+A sub-agent that runs out of budget mid-pass returns nothing, and everything it read is gone. So findings are written **incrementally, from the first record**, as JSONL (a truncated object is unparseable; a truncated JSONL loses one line) — and alongside the findings, a **coverage record per unit checked**, including the clean ones. Without coverage a resume cannot tell "checked and fine" from "never reached", so it redoes the clean parts, which are most of them.
+
+Output goes to `<state-dir>/verify/<key>.<stage>.jsonl` — state directory set by the protocol, defaulting to `.claude/verify/` in the project root, never the session scratchpad, since surviving into the next session is the whole point. A `<key>.status.json` records which stage is running and when it last checkpointed, so a dead stage is visible as dead rather than as never-run. Every role is told to read its own partial output first and continue from the last coverage record.
 
 ## Skill structure
 
